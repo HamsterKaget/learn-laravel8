@@ -2,45 +2,47 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\WaifuRequest;
 use Illuminate\Http\Request;
 use App\Models\WaifuModel;
+use Facade\FlareClient\View;
+use Illuminate\Contracts\View\View as ViewView;
 use Illuminate\Support\Facades\DB;
 
 class WaifuController extends Controller
 {
-    private $tasklist = [
-        'first' => 'Sakurajima',
-        'second' => 'Chizuru',
-        'third' => 'Chisato'
-    ];
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('verified');
+        $this->middleware('is_admin');
+    }
 
 
     public function create() {
         return view('waifu.create');
     }
 
-    public function edit() {
-        return view('waifu.edit');
+    public function edit($id) {
+        $data = WaifuModel::find($id);
+
+        return view('waifu.edit', compact('data'));
     }
 
     public function index(Request $request) {
 
         if($request->search) {
-            $result = WaifuModel::where('waifu', 'LIKE', "%$request->search%")->get();
-
-            return $result;
-        } else {
-            return WaifuModel::get();
+            $result = WaifuModel::where('waifu', 'LIKE', "%$request->search%")->paginate(3);
+            return view('waifu.index', [
+                'waifus' => $result,
+            ]);
         }
 
-        // if($request->search) {
-        //     $result = DB::select("select * from waifu where waifu like '%?%'", [$request->search]);
-        //     return $result;
-        // }
+        $result = WaifuModel::paginate(3);
+        return view('waifu.index', [
+            'waifus' => $result,
+        ]);
 
-        // $result = DB::select('select * from waifu');
-
-        // return $result;
 
     }
 
@@ -51,16 +53,18 @@ class WaifuController extends Controller
 
     }
 
-    public function store(Request $request) {
+    public function store(WaifuRequest $request) {
+
         WaifuModel::create([
             'waifu' => $request->waifu,
             'anime' => $request->anime
         ]);
 
-        return 'success';
+        return redirect('/waifu');
     }
 
-    public function update(Request $request, $id) {
+    public function update(WaifuRequest $request, $id) {
+
         $result = WaifuModel::find($id);
 
         $result->update([
@@ -68,12 +72,7 @@ class WaifuController extends Controller
             'anime' => $request->anime
         ]);
 
-        return $result;
-        // if($result == 1) {
-        //     return 'success';
-        // } else {
-        //     return 'failed';
-        // }
+        return redirect('/waifu');
 
     }
 
@@ -81,7 +80,7 @@ class WaifuController extends Controller
         $result = WaifuModel::find($id);
         $result->delete();
 
-        return "Succes";
+        return redirect('/waifu');
 
         // if($result == 1) {
         //     return 'success';

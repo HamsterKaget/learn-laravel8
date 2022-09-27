@@ -18,14 +18,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/about', [HomeController::class, 'about']);
-Route::get('/waifu', [WaifuController::class, 'index']);
 // Route::get('/waifu/{id}', [WaifuController::class, 'show']);
-// Route::post('/waifu', [WaifuController::class, 'store']);
-// Route::patch('/waifu/{id}', [WaifuController::class, 'update']);
-// Route::delete('/waifu/{id}', [WaifuController::class, 'destroy']);
 
 // New
+Route::get('/waifu', [WaifuController::class, 'index']);
 Route::get('waifu/create', [WaifuController::class, 'create']);
 Route::get('waifu/{id}/edit', [WaifuController::class, 'edit']);
+Route::post('/waifu', [WaifuController::class, 'store']);
+Route::delete('/waifu/{id}', [WaifuController::class, 'destroy']);
+Route::patch('/waifu/{id}', [WaifuController::class, 'update']);
 
 
